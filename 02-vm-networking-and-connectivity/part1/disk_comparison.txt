@@ -1,0 +1,15 @@
+Disk Comparison Results
+
+qcow2:
+- Thin provisioned
+- Initially consumes minimal disk space
+- Expands dynamically as data is written
+
+raw:
+- Pre-allocates full disk size immediately
+- Occupies full 5GB upon creation
+
+Conclusion:
+qcow2 is more storage-efficient due to thin provisioning,
+while raw format offers performance benefits but consumes
+full allocated space immediately.

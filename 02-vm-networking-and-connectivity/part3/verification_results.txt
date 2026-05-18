@@ -1,0 +1,12 @@
+Verification Results
+
+1. VM2 successfully connected to NBD export.
+2. ext4 filesystem created on /dev/nbd0.
+3. Test file written successfully.
+4. Client disconnected cleanly.
+5. Disk mounted locally on VM1.
+6. testfile.txt verified present.
+
+Conclusion:
+NBD export, remote access, filesystem creation, and
+data persistence were successfully demonstrated.
