@@ -1,0 +1,10 @@
+flask-multi (optimized image)
+
+Total: 4 vulnerabilities
+
+CRITICAL: 0
+HIGH: 1
+- python: minor version issue
+
+MEDIUM: 2
+LOW: 1

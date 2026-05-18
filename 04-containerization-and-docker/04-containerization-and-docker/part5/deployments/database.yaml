@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: database
+        image: postgres:16-alpine
+        env:
+        - name: POSTGRES_DB
+          value: appdb
+        - name: POSTGRES_USER
+          value: appuser
+        - name: POSTGRES_PASSWORD
+          value: changeme
+        ports:
+        - containerPort: 5432

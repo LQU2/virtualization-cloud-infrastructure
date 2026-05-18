@@ -1,0 +1,14 @@
+flask-single (python:3.11-alpine)
+
+Total: 12 vulnerabilities
+
+CRITICAL: 2
+- openssl: CVE-2023-5363
+- busybox: CVE-2023-42366
+
+HIGH: 4
+- musl libc: CVE-2023-4527
+- python: CVE-2023-40217
+
+MEDIUM: 3
+LOW: 3
