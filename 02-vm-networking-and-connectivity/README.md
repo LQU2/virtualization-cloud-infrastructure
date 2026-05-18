@@ -17,7 +17,7 @@ The project explores how virtual machines communicate with each other, how virtu
 
 ## Components Completed
 
-### Part 1 – Virtual Disk Management
+### Part 1
 
 - Created 5GB qcow2 thin provisioned disk
 - Created 5GB raw disk
@@ -25,15 +25,14 @@ The project explores how virtual machines communicate with each other, how virtu
 - Resized qcow2 disk from 5GB to 10GB
 - Converted qcow2 disk to raw format
 
-### Part 2 – QEMU Socket Networking
+### Part 2
 
 - Configured two Alpine Linux virtual machines
 - Assigned static IP addresses
 - Tested VM to VM communication using ping and networking utilities
 - Verified isolated virtual network connectivity
 
-### Part 3 – Network Block Device
-
+### Part 3 
 - Created a shared 1GB qcow2 virtual disk on VM1
 - Exported the disk using qemu nbd
 - Connected remotely from VM2 using nbd client
