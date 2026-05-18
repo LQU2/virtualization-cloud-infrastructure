@@ -1,0 +1,7 @@
+Disk I/O Benchmark
+
+Command:
+time dd if=/dev/zero of=testfile bs=1M count=512
+
+Result:
+Approximate throughput observed in MB/s.

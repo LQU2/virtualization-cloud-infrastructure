@@ -1,0 +1,7 @@
+CPU Benchmark (Emulated Mode)
+
+Command:
+sysbench cpu --cpu-max-prime=20000 run
+
+Observed slower execution compared to expected hardware acceleration.
+

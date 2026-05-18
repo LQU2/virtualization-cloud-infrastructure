@@ -1,0 +1,6 @@
+Boot Time Measurements
+
+Approximate boot time: 4.2 s
+
+Hardware Acceleration
+Not supported in MSYS2 environment

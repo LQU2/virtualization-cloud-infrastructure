@@ -1,0 +1,5 @@
+CPU Benchmark (Hardware Acceleration Attempted)
+
+Mode: WHPX
+Result: Acceleration not available in MSYS2 environment.
+Performance testing conducted in emulated mode

@@ -1,0 +1,166 @@
+#cloud-config
+
+hostname: cis395-lab
+manage_etc_hosts: true
+
+users:
+  - name: student
+    groups: wheel,docker
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    passwd: $6$BVFkuzZrF4asXe4m$XZ4dwjUYgPGEV3WEMqhvw9IqHDFZSHneBlGsYi6ZL4PhSVJc0u33oyG4AjHBuGZ.q2IFa.FB3Z4P9CvaoF5ZE1
+
+ssh_pwauth: true
+
+packages:
+  - git
+  - vim
+  - vim-doc
+  - nano
+  - curl
+  - wget
+  - openssh
+  - bash
+  - coreutils
+  - grep
+  - sed
+  - less
+  - man-pages
+  - mandoc
+  - sudo
+  - tmux
+  - screen
+  - netcat-openbsd
+  - gcc
+  - make
+  - musl-dev
+  - libc-dev
+  - binutils
+  - file
+  - patch
+  - gdb
+  - strace
+  - ltrace
+  - elfutils
+  - util-linux
+  - procps
+  - docker
+  - docker-compose
+  - containerd
+  - qemu-img
+  - qemu-system-x86_64
+  - util-linux
+  - lscpu
+  - lsblk
+  - findmnt
+  - procps
+  - dmidecode
+  - pciutils
+  - hwinfo
+  - net-tools
+  - iproute2
+  - bind-tools
+  - bridge-utils
+  - iptables
+  - kubectl
+
+# =============================================================================
+# BOOTCMD - Runs on EVERY boot (not just first boot)
+# =============================================================================
+# Use this section for idempotent updates that should apply on each VM start.
+# Commands here run early in boot, before networking is fully configured.
+# All commands MUST be idempotent (safe to run multiple times).
+#
+# UPDATE_VERSION: 2026.01.2
+# Increment version when adding new updates for tracking purposes.
+# =============================================================================
+bootcmd:
+  # Write update version marker (for verification and debugging)
+  - echo "UPDATE_VERSION=2026.01.2" > /etc/lab-update-version
+  - echo "APPLIED_AT=$(date -Iseconds)" >> /etc/lab-update-version
+
+  # Fix Node.js sqlite3 session symbol errors on Alpine 3.21
+  # nodejs is compiled with sqlite session extension support but runtime
+  # sqlite-libs lacks those symbols. sqlite-dev provides the complete library.
+  - apk info -e sqlite-dev >/dev/null 2>&1 || apk add --no-cache sqlite-dev
+
+  # --- Add new idempotent updates above this line ---
+
+runcmd:
+  - rc-update add sshd default
+  - sed -i 's/^#*GatewayPorts.*/GatewayPorts yes/' /etc/ssh/sshd_config
+  - grep -q '^GatewayPorts' /etc/ssh/sshd_config || echo 'GatewayPorts yes' >> /etc/ssh/sshd_config
+  - sed -i 's/^#*X11Forwarding.*/X11Forwarding yes/' /etc/ssh/sshd_config
+  - grep -q '^X11Forwarding' /etc/ssh/sshd_config || echo 'X11Forwarding yes' >> /etc/ssh/sshd_config
+  - sed -i 's/^#*AllowTcpForwarding.*/AllowTcpForwarding yes/' /etc/ssh/sshd_config
+  - grep -q '^AllowTcpForwarding' /etc/ssh/sshd_config || echo 'AllowTcpForwarding yes' >> /etc/ssh/sshd_config
+  - service sshd restart
+  - su - student -c "git config --global init.defaultBranch main"
+  - su - student -c "git config --global pull.rebase false"
+  - rc-update add docker default
+  - service docker start
+  - rc-update add containerd default
+  - service containerd start
+  - |
+    cat > /home/student/verify-environment.sh << 'VERIFY'
+    #!/bin/bash
+    echo "=== Lab Environment Verification ==="
+    echo ""
+
+    echo "System Information:"
+    echo "  Hostname: $(hostname)"
+    echo "  Kernel: $(uname -r)"
+    lscpu 2>/dev/null | grep -E 'Model name|CPU\(s\):' | sed 's/^/  /'
+    echo ""
+
+    echo "Memory:"
+    free -h 2>/dev/null | grep Mem | awk '{print "  Total: " $2 ", Available: " $7}'
+    echo ""
+
+    echo "Disk Space:"
+    df -h / 2>/dev/null | tail -1 | awk '{print "  Used: " $3 "/" $2 " (" $5 ")"}'
+    echo ""
+
+    echo "Installed Tools:"
+    for tool in git vim curl tmux; do
+        if command -v $tool &>/dev/null; then
+            echo "  [OK] $tool: $(command -v $tool)"
+        else
+            echo "  [MISSING] $tool"
+        fi
+    done
+    echo ""
+    echo "Build Tools:"
+    gcc --version 2>/dev/null | head -1 | sed 's/^/  /' || echo "  [MISSING] gcc"
+    make --version 2>/dev/null | head -1 | sed 's/^/  /' || echo "  [MISSING] make"
+    echo ""
+    echo "Debug Tools:"
+    gdb --version 2>/dev/null | head -1 | sed 's/^/  /' || echo "  [MISSING] gdb"
+    strace --version 2>/dev/null | head -1 | sed 's/^/  /' || echo "  [MISSING] strace"
+    echo ""
+    echo "Virtualization:"
+    docker --version 2>/dev/null | sed 's/^/  /' || echo "  [MISSING] docker"
+    service docker status 2>/dev/null | head -1 | sed 's/^/  /'
+
+    echo ""
+    echo "Hardware Virtualization:"
+    if grep -qE 'vmx|svm' /proc/cpuinfo 2>/dev/null; then
+        echo "  [OK] CPU supports hardware virtualization"
+    else
+        echo "  [INFO] Running in TCG emulation mode (no nested virt)"
+    fi
+    echo ""
+    echo "Kubernetes:"
+    kubectl version --client 2>/dev/null | head -1 | sed 's/^/  /' || echo "  [MISSING] kubectl"
+    echo ""
+    echo "Git Configuration:"
+    git config --global user.name 2>/dev/null | sed 's/^/  Name: /' || echo "  [TODO] Run: git config --global user.name 'Your Name'"
+    git config --global user.email 2>/dev/null | sed 's/^/  Email: /' || echo "  [TODO] Run: git config --global user.email 'you@example.com'"
+    echo ""
+    echo "=== Verification Complete ==="
+    VERIFY
+  - chmod +x /home/student/verify-environment.sh
+  - chown student:student /home/student/verify-environment.sh
+
+final_message: "CIS 395 Lab VM ready! Connect with: ssh -p 2222 student@localhost"
