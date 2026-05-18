@@ -52,12 +52,3 @@ The project explores how virtual machines communicate with each other, how virtu
 - Raw disk images
 - SSH and virtual networking
 
-## Objectives
-
-The purpose of this section is to strengthen understanding of:
-- Virtual machine networking
-- Virtual disk administration
-- Remote storage concepts
-- Linux networking and connectivity
-- Virtualized infrastructure management
-- Storage persistence and virtualization workflows
