@@ -1,6 +1,5 @@
 #!/bin/bash
 # implementation_schema=docs/implementation_schema/lab-environment.schema.md
-# CIS 395 Lab Environment Provisioner
 # =====================================
 # Supports: Windows (MSYS2), macOS, Linux
 #
